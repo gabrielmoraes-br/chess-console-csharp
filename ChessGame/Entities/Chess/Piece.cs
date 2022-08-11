@@ -9,10 +9,10 @@ public class Piece
     public int Movements { get; protected set; }
     public Board Board { get; protected set; }
 
-    public Piece(Color color, Position position, Board board)
+    public Piece(Color color, Board board)
     {
         Color = color;
-        Position = position;
+        Position = null;
         Board = board;
         Movements = 0;
     }
