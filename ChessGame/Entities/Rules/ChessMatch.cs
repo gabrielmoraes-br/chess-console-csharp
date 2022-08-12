@@ -1,14 +1,15 @@
 using System.Text.Unicode;
 using ChessGame.Entities.Chess;
 using ChessGame.Entities.Enums;
+using ChessGame.Entities.Exceptions;
 
 namespace ChessGame.Entities.Rules;
 
 public class ChessMatch
 {
     public Board Board { get; private set; }
-    private int Turn { get; set; }
-    private Color PlayerTurn { get; set; }
+    public int Turn { get; private set; }
+    public Color PlayerTurn { get; private set; }
     public bool Finished { get; private set; }
 
     public ChessMatch()
@@ -20,12 +21,55 @@ public class ChessMatch
         PutPieces();
     }
 
-    public void ExecuteMove(Position origin, Position destination)
+    public void Move(Position origin, Position destination)
     {
         Piece piece = Board.PullPiece(origin);
         piece.IncreaseMoves();
         Piece capturedPiece = Board.PullPiece(destination);
         Board.PutPiece(piece, destination);
+    }
+
+    public void ExecuteMove(Position origin, Position destination)
+    {
+        Move(origin, destination);
+        Turn++;
+        PassTurn();
+    }
+
+    public void ValidateOriginPosition(Position position)
+    {
+        if (Board.Piece(position) == null)
+        {
+            throw new BoardException("Piece does not exist!");
+        }
+        if (PlayerTurn != Board.Piece(position).Color)
+        {
+            throw new BoardException("This piece belongs to the opponent!");
+        }
+        if (!Board.Piece(position).HasPossibleMoves())
+        {
+            throw new BoardException("There are no possible moves for this piece.");
+        }
+    }
+    
+    public void ValidateDestinationPosition(Position origin, Position destination)
+    {
+        if (!Board.Piece(origin).CanMoveTo(destination))
+        {
+            throw new BoardException("Invalid destination!");
+        }
+    }
+
+    private void PassTurn()
+    {
+        if (PlayerTurn == Color.White)
+        {
+            PlayerTurn = Color.Black;
+        }
+        else
+        {
+            PlayerTurn = Color.White;
+        }
     }
 
     private void PutPieces()
@@ -38,6 +82,10 @@ public class ChessMatch
         Board.PutPiece(new Bishop(Color.White, Board), new ChessPosition('f', 1).ToPosition());
         Board.PutPiece(new Queen(Color.White, Board), new ChessPosition('d', 1).ToPosition());
         Board.PutPiece(new King(Color.White, Board), new ChessPosition('e', 1).ToPosition());
+        Board.PutPiece(new Pawn(Color.White, Board), new ChessPosition('d', 2).ToPosition());
+        Board.PutPiece(new Pawn(Color.White, Board), new ChessPosition('e', 2).ToPosition());
+        Board.PutPiece(new Pawn(Color.White, Board), new ChessPosition('f', 2).ToPosition());
+        Board.PutPiece(new King(Color.White, Board), new ChessPosition('h', 3).ToPosition());
         
         Board.PutPiece(new Rook(Color.Black, Board), new ChessPosition('a',8).ToPosition());
         Board.PutPiece(new Rook(Color.Black, Board), new ChessPosition('h',8).ToPosition());

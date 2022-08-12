@@ -53,6 +53,7 @@ public class Board
         return aux;
     }
 
+    //Return false when the position is out of the range from array index of the board.
     public bool IsValidPosition(Position position)
     {
         if (position.Line < 0 || position.Line >= Lines || 

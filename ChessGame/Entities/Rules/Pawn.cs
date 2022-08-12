@@ -9,6 +9,11 @@ public class Pawn : Piece
     {
     }
 
+    public override bool[,] IsPossibleMove()
+    {
+        throw new NotImplementedException();
+    }
+
     public override string ToString()
     {
         return "P";
