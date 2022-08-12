@@ -41,6 +41,18 @@ public class Board
         piece.Position = position;
     }
 
+    public Piece PullPiece(Position position)
+    {
+        if (Piece(position) == null)
+        {
+            return null;
+        }
+        Piece aux = Piece(position);
+        aux.Position = null;
+        Pieces[position.Line, position.Column] = null;
+        return aux;
+    }
+
     public bool IsValidPosition(Position position)
     {
         if (position.Line < 0 || position.Line >= Lines || 

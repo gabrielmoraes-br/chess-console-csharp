@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Encodings.Web;
 using ChessGame.Entities.Chess;
 using ChessGame.Entities.Enums;
 using ChessGame.Entities.Exceptions;
@@ -12,17 +13,22 @@ namespace ChessGame
         {
             try
             {
-                Board board = new Board(8, 8);
+                ChessMatch match = new ChessMatch();
 
-                board.PutPiece(new Rook(Color.White, board), new Position(5, 1));
-                board.PutPiece(new Knight(Color.Black, board), new Position(1, 3));
-                board.PutPiece(new King(Color.Black, board), new Position(0, 2));
-                board.PutPiece(new Bishop(Color.Black, board), new Position(3, 7));
-                board.PutPiece(new Pawn(Color.White, board), new Position(4, 4));
-                board.PutPiece(new Queen(Color.White, board), new Position(7, 2));
-                board.PutPiece(new King(Color.White, board), new Position(7, 3));
+                while (!match.Finished)
+                {
+                    Console.Clear();
+                    Screen.PrintBoard(match.Board);
 
-                Screen.PrintBoard(board);
+                    Console.WriteLine();
+                    Console.Write("Origin: ");
+                    Position origin = Screen.ReadPosition().ToPosition();
+                    Console.Write("Destination: ");
+                    Position destination = Screen.ReadPosition().ToPosition();
+                    
+                    match.ExecuteMove(origin, destination);
+                }
+                
             }
             catch (BoardException e)
             {

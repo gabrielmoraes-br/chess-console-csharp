@@ -1,5 +1,6 @@
 using ChessGame.Entities.Chess;
 using ChessGame.Entities.Enums;
+using ChessGame.Entities.Rules;
 
 namespace ChessGame;
 
@@ -25,6 +26,14 @@ public class Screen
             Console.WriteLine();
         }
         Console.WriteLine("  a b c d e f g h");
+    }
+
+    public static ChessPosition ReadPosition()
+    {
+        string position = Console.ReadLine();
+        char column = position[0];
+        int line = int.Parse($"{position[1]}");
+        return new ChessPosition(column, line);
     }
 
     public static void PrintPiece(Piece piece)
