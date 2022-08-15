@@ -16,7 +16,7 @@ public abstract class Piece
         Board = board;
         Moves = 0;
     }
-
+    
     public void IncreaseMoves()
     {
         Moves++;
@@ -29,6 +29,7 @@ public abstract class Piece
         return piece == null || piece.Color != Color;
     }
 
+    //Tests the board array in relation to the piece position and return true if it is capable to move somewhere.
     public bool HasPossibleMoves()
     {
         bool[,] placeble = IsPossibleMove();
@@ -45,11 +46,12 @@ public abstract class Piece
         return false;
     }
 
+    //Returns true if the position argument is a possible move (to destination) of the respective piece. 
     public bool CanMoveTo(Position position)
     {
         return IsPossibleMove()[position.Line, position.Column];
     }
     
-    //Return true if the piece can be placed in a specific position.
+    //Returns true if the piece can be placed in a specific position, according to your movement rules.
     public abstract bool[,] IsPossibleMove();
 }

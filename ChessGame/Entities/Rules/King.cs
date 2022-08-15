@@ -10,6 +10,7 @@ public class King : Piece
     {
     }
 
+    //Movement rules of the King.
     public override bool[,] IsPossibleMove()
     {
         bool[,] placeble = new bool[Board.Lines, Board.Columns];

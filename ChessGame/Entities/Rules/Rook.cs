@@ -9,6 +9,7 @@ public class Rook : Piece
     {
     }
 
+    //Movement rules of the Rook.
     public override bool[,] IsPossibleMove()
     {
         bool[,] placeble = new bool[Board.Lines, Board.Columns];
