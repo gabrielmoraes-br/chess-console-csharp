@@ -13,6 +13,7 @@ public class ChessMatch
     public bool Finished { get; private set; }
     private HashSet<Piece> Pieces { get; set; }
     private HashSet<Piece> CapturedPieces { get; set; }
+    public bool Check { get; private set; }
 
     public ChessMatch()
     {
@@ -20,13 +21,14 @@ public class ChessMatch
         Turn = 1;
         PlayerTurn = Color.White;
         Finished = false;
+        Check = false;
         Pieces = new HashSet<Piece>();
         CapturedPieces = new HashSet<Piece>();
         PlacePieces();
     }
 
     //Grabs the pulled piece from the board (returned pulledPiece from PullPiece) and place it in another position.
-    public void Move(Position origin, Position destination)
+    public Piece Move(Position origin, Position destination)
     {
         Piece piece = Board.PullPiece(origin);
         piece.IncreaseMoves();
@@ -37,16 +39,54 @@ public class ChessMatch
         {
             CapturedPieces.Add(capturedPiece);
         }
+        return capturedPiece;
     }
 
     //Executes the move and change the turn to next player.
     public void ExecuteMove(Position origin, Position destination)
     {
-        Move(origin, destination);
-        Turn++;
-        PassTurn();
+        Piece capturedPiece = Move(origin, destination);
+
+        //Tests if player is trying to check itself after executing this move.
+        if (IsCheck(PlayerTurn))
+        {
+            UndoMove(origin, destination, capturedPiece);
+            throw new BoardException("You cannot check yourself!");
+        }
+        //Tests if opponent king is under threat after executing this move.
+        if (IsCheck(Opponent(PlayerTurn)))
+        {
+            Check = true;
+        }
+        else
+        {
+            Check = false;
+        }
+        //Tests if a checkmate was done.
+        if (IsCheckmate(Opponent(PlayerTurn)))
+        {
+            Finished = true;
+        }
+        else
+        {
+            Turn++;
+            PassTurn();
+        }
     }
 
+    //Undos the move if a player try to check itself.
+    public void UndoMove(Position origin, Position destination, Piece capturedPiece)
+    {
+        Piece piece = Board.PullPiece(destination);
+        piece.DecreaseMoves();
+        if (capturedPiece != null)
+        {
+            Board.PutPiece(capturedPiece, destination);
+            CapturedPieces.Remove(capturedPiece);
+        }
+        Board.PutPiece(piece, origin);
+    }
+    
     //Throw an exception according to the possibles from origin piece.
     public void ValidateOriginPosition(Position position)
     {
@@ -63,7 +103,7 @@ public class ChessMatch
             throw new BoardException("There are no possible moves for this piece.");
         }
     }
-    
+
     //Throw an exception if the origin piece cannot move to the destination, when it's not an empty position (null).
     //Also, it validates if the piece is able to move to it, according to your movement rules.
     public void ValidateDestinationPosition(Position origin, Position destination)
@@ -100,7 +140,7 @@ public class ChessMatch
         }
         return captured;
     }
-    
+
     //Returns all remaining pieces from a specific color.
     public HashSet<Piece> RemainingPieces(Color color)
     {
@@ -116,6 +156,82 @@ public class ChessMatch
         return pieces;
     }
 
+    //Inverts a color. This method is useful to determine a check, from IsCheck method below.
+    private Color Opponent(Color color)
+    {
+        if (color == Color.White)
+        {
+            return Color.Black;
+        }
+        return Color.White;
+    }
+
+    //Returns a King(color) to be tested in IsCheck method below.
+    private Piece King(Color color)
+    {
+        foreach (Piece piece in RemainingPieces(color))
+        {
+            if (piece is King)
+            {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    //Returns true if the King(color) can be captured by any of opponent pieces.
+    public bool IsCheck(Color color)
+    {
+        Piece king = King(color);
+        if (king == null)
+        {
+            throw new BoardException("There is no King on the board!");
+        }
+        //Tests all possible moves from all opponent pieces and returns true if any piece can capture the king.
+        foreach (Piece piece in RemainingPieces(Opponent(color)))
+        {
+            bool[,] canCapture = piece.IsPossibleMove();
+            if (canCapture[king.Position.Line, king.Position.Column])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Returns true if the King(color) is in a checkmate!
+    public bool IsCheckmate(Color color)
+    {
+        if (!IsCheck(color))
+        {
+            return false;
+        }
+        //Tests if any move of any piece can get the king out of the checkmate.
+        foreach (Piece piece in RemainingPieces(color))
+        {
+            bool[,] threat = piece.IsPossibleMove();
+            for (int i = 0; i < Board.Lines; i++)
+            {
+                for (int j = 0; i < Board.Columns; j++)
+                {
+                    if (threat[i, j])
+                    {
+                        Position origin = piece.Position;
+                        Position destination = new Position(i, j);
+                        Piece capturedPiece = Move(origin, destination);
+                        bool check = IsCheck(color);
+                        UndoMove(origin, destination, capturedPiece);
+                        if (!check)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     //Place a new piece into the chess board and into the HashSet Pieces.
     public void PutNewPiece(int line, char column, Piece piece)
     {
@@ -126,26 +242,38 @@ public class ChessMatch
     //Instantiates a piece object into a board position.
     private void PlacePieces()
     {
-        PutNewPiece(1, 'a',new Rook(Color.White, Board));
-        PutNewPiece(1, 'h',new Rook(Color.White, Board));
-        PutNewPiece(1, 'b',new Knight(Color.White, Board));
-        PutNewPiece(1, 'g',new Knight(Color.White, Board));
-        PutNewPiece(1, 'c',new Bishop(Color.White, Board));
-        PutNewPiece(1, 'f',new Bishop(Color.White, Board));
-        PutNewPiece(1, 'd',new Queen(Color.White, Board));
-        PutNewPiece(1, 'e',new King(Color.White, Board));
-        PutNewPiece(2, 'd',new Pawn(Color.White, Board));
-        PutNewPiece(2, 'e',new Pawn(Color.White, Board));
-        PutNewPiece(2, 'f',new Pawn(Color.White, Board));
-        PutNewPiece(3, 'h',new King(Color.White, Board));
-        
-        PutNewPiece(8, 'a',new Rook(Color.Black, Board));
-        PutNewPiece(8, 'h',new Rook(Color.Black, Board));
-        PutNewPiece(8, 'b',new Knight(Color.Black, Board));
-        PutNewPiece(8, 'g',new Knight(Color.Black, Board));
-        PutNewPiece(8, 'c',new Bishop(Color.Black, Board));
-        PutNewPiece(8, 'f',new Bishop(Color.Black, Board));
-        PutNewPiece(8, 'd',new Queen(Color.Black, Board));
-        PutNewPiece(8, 'e',new King(Color.Black, Board));
+        PutNewPiece(1, 'a', new Rook(Color.White, Board));
+        PutNewPiece(1, 'h', new Rook(Color.White, Board));
+        PutNewPiece(1, 'b', new Knight(Color.White, Board));
+        PutNewPiece(1, 'g', new Knight(Color.White, Board));
+        PutNewPiece(1, 'c', new Bishop(Color.White, Board));
+        PutNewPiece(1, 'f', new Bishop(Color.White, Board));
+        PutNewPiece(1, 'd', new Queen(Color.White, Board));
+        PutNewPiece(1, 'e', new King(Color.White, Board));
+        PutNewPiece(2, 'a', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'b', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'c', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'd', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'e', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'f', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'g', new Pawn(Color.White, Board));
+        PutNewPiece(2, 'h', new Pawn(Color.White, Board));
+
+        PutNewPiece(8, 'a', new Rook(Color.Black, Board));
+        PutNewPiece(8, 'h', new Rook(Color.Black, Board));
+        PutNewPiece(8, 'b', new Knight(Color.Black, Board));
+        PutNewPiece(8, 'g', new Knight(Color.Black, Board));
+        PutNewPiece(8, 'c', new Bishop(Color.Black, Board));
+        PutNewPiece(8, 'f', new Bishop(Color.Black, Board));
+        PutNewPiece(8, 'd', new Queen(Color.Black, Board));
+        PutNewPiece(8, 'e', new King(Color.Black, Board));
+        PutNewPiece(7, 'a', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'b', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'c', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'd', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'e', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'f', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'g', new Pawn(Color.Black, Board));
+        PutNewPiece(7, 'h', new Pawn(Color.Black, Board));
     }
 }

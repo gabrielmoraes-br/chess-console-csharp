@@ -14,7 +14,19 @@ public class Screen
         PrintScore(match);
         Console.WriteLine();
         Console.WriteLine($"Turn: {match.Turn}");
-        Console.WriteLine($"Waiting move: {match.PlayerTurn}");
+        if (!match.Finished)
+        {
+            Console.WriteLine($"Waiting move: {match.PlayerTurn}");
+            if (match.Check)
+            {
+                Console.WriteLine("CHECK!");
+            }
+        }
+        else
+        {
+            Console.WriteLine("CHECKMATE!");
+            Console.WriteLine($"Winner: {match.PlayerTurn}");
+        }
     }
 
     //Prints the score on the console.

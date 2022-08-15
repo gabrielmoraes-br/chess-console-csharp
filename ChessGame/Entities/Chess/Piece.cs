@@ -17,9 +17,16 @@ public abstract class Piece
         Moves = 0;
     }
     
+    //Increase moves from a piece.
     public void IncreaseMoves()
     {
         Moves++;
+    }
+    
+    //Decrease moves from a piece. Useful in UndoMove method from ChessMatch class.
+    public void DecreaseMoves()
+    {
+        Moves--;
     }
     
     //Checks if the position is empty (null) or if has an opponent piece there (for capturing).

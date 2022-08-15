@@ -27,7 +27,7 @@ public class Rook : Piece
             {
                 break;
             }
-            position.Line -= 1;
+            position.SetValues(position.Line - 1, position.Column);
         }
         //Right
         position.SetValues(Position.Line, Position.Column + 1);
@@ -38,7 +38,7 @@ public class Rook : Piece
             {
                 break;
             }
-            position.Column += 1;
+            position.SetValues(position.Line, position.Column + 1);
         }
         //Below
         position.SetValues(Position.Line + 1, Position.Column);
@@ -49,7 +49,7 @@ public class Rook : Piece
             {
                 break;
             }
-            position.Line += 1;
+            position.SetValues(position.Line + 1, position.Column);
         }
         //Left
         position.SetValues(Position.Line, Position.Column - 1);
@@ -60,7 +60,7 @@ public class Rook : Piece
             {
                 break;
             }
-            position.Column -= 1;
+            position.SetValues(position.Line, position.Column - 1);
         }
         return placeble;
     }

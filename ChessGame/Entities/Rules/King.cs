@@ -19,7 +19,7 @@ public class King : Piece
         
         //SetValues method set the values into the class Position, not in local variable position.
         
-        //Above
+        //North
         position.SetValues(Position.Line - 1, Position.Column);
         if (Board.IsValidPosition(position) && CanMove(position))
         {
@@ -31,7 +31,7 @@ public class King : Piece
         {
             placeble[position.Line, position.Column] = true;
         }
-        //Right
+        //East
         position.SetValues(Position.Line, Position.Column + 1);
         if (Board.IsValidPosition(position) && CanMove(position))
         {
@@ -43,7 +43,7 @@ public class King : Piece
         {
             placeble[position.Line, position.Column] = true;
         }
-        //Below
+        //South
         position.SetValues(Position.Line + 1, Position.Column);
         if (Board.IsValidPosition(position) && CanMove(position))
         {
@@ -55,7 +55,7 @@ public class King : Piece
         {
             placeble[position.Line, position.Column] = true;
         }
-        //Left
+        //West
         position.SetValues(Position.Line, Position.Column - 1);
         if (Board.IsValidPosition(position) && CanMove(position))
         {
