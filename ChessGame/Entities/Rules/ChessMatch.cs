@@ -39,6 +39,24 @@ public class ChessMatch
         {
             CapturedPieces.Add(capturedPiece);
         }
+        //Castling Kingside (short)
+        if (piece is King && destination.Column == origin.Column + 2)
+        {
+            Position rookOrigin = new Position(origin.Line, origin.Column + 3);
+            Position rookDestination = new Position(origin.Line, origin.Column + 1);
+            Piece closerRook = Board.PullPiece(rookOrigin);
+            closerRook.IncreaseMoves();
+            Board.PutPiece(closerRook, rookDestination);
+        }
+        //Castling Queenside (long)
+        if (piece is King && destination.Column == origin.Column - 2)
+        {
+            Position rookOrigin = new Position(origin.Line, origin.Column - 4);
+            Position rookDestination = new Position(origin.Line, origin.Column - 1);
+            Piece farRook = Board.PullPiece(rookOrigin);
+            farRook.IncreaseMoves();
+            Board.PutPiece(farRook, rookDestination);
+        }
         return capturedPiece;
     }
 
@@ -85,6 +103,25 @@ public class ChessMatch
             CapturedPieces.Remove(capturedPiece);
         }
         Board.PutPiece(piece, origin);
+        
+        //Undos castling Kingside (short)
+        if (piece is King && destination.Column == origin.Column + 2)
+        {
+            Position rookOrigin = new Position(origin.Line, origin.Column + 3);
+            Position rookDestination = new Position(origin.Line, origin.Column + 1);
+            Piece closerRook = Board.PullPiece(rookDestination);
+            closerRook.DecreaseMoves();
+            Board.PutPiece(closerRook, rookOrigin);
+        }
+        //Undos castling Queenside (long)
+        if (piece is King && destination.Column == origin.Column - 2)
+        {
+            Position rookOrigin = new Position(origin.Line, origin.Column - 4);
+            Position rookDestination = new Position(origin.Line, origin.Column - 1);
+            Piece farRook = Board.PullPiece(rookDestination);
+            farRook.DecreaseMoves();
+            Board.PutPiece(farRook, rookOrigin);
+        }
     }
     
     //Throw an exception according to the possibles from origin piece.
@@ -249,7 +286,7 @@ public class ChessMatch
         PutNewPiece(1, 'c', new Bishop(Color.White, Board));
         PutNewPiece(1, 'f', new Bishop(Color.White, Board));
         PutNewPiece(1, 'd', new Queen(Color.White, Board));
-        PutNewPiece(1, 'e', new King(Color.White, Board));
+        PutNewPiece(1, 'e', new King(Color.White, Board, this));
         PutNewPiece(2, 'a', new Pawn(Color.White, Board));
         PutNewPiece(2, 'b', new Pawn(Color.White, Board));
         PutNewPiece(2, 'c', new Pawn(Color.White, Board));
@@ -266,7 +303,7 @@ public class ChessMatch
         PutNewPiece(8, 'c', new Bishop(Color.Black, Board));
         PutNewPiece(8, 'f', new Bishop(Color.Black, Board));
         PutNewPiece(8, 'd', new Queen(Color.Black, Board));
-        PutNewPiece(8, 'e', new King(Color.Black, Board));
+        PutNewPiece(8, 'e', new King(Color.Black, Board, this));
         PutNewPiece(7, 'a', new Pawn(Color.Black, Board));
         PutNewPiece(7, 'b', new Pawn(Color.Black, Board));
         PutNewPiece(7, 'c', new Pawn(Color.Black, Board));

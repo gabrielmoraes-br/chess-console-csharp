@@ -6,8 +6,17 @@ namespace ChessGame.Entities.Rules;
 
 public class King : Piece
 {
-    public King(Color color, Board board) : base(color, board)
+    private ChessMatch Match;
+    public King(Color color, Board board, ChessMatch match) : base(color, board)
     {
+        Match = match;
+    }
+    
+    //Returns true if Rook is placed according Castling rules.
+    private bool CanCastling(Position position)
+    {
+        Piece piece = Board.Piece(position);
+        return piece != null && piece is Rook && piece.Color == Color && piece.Moves == 0;
     }
 
     //Movement rules of the King.
@@ -66,6 +75,36 @@ public class King : Piece
         if (Board.IsValidPosition(position) && CanMove(position))
         {
             placeble[position.Line, position.Column] = true;
+        }
+        
+        //Castling Kingside (short)
+        if (Moves == 0 && !Match.Check)
+        {
+            Position closerRook = new Position(Position.Line, Position.Column + 3);
+            if (CanCastling(closerRook))
+            {
+                Position pos1 = new Position(Position.Line, Position.Column + 1);
+                Position pos2 = new Position(Position.Line, Position.Column + 2);
+                if (Board.Piece(pos1) == null && Board.Piece(pos2) == null)
+                {
+                    placeble[Position.Line, Position.Column + 2] = true;
+                }
+            } 
+        }
+        //Castling Queenside (long)
+        if (Moves == 0 && !Match.Check)
+        {
+            Position farRook = new Position(Position.Line, Position.Column - 4);
+            if (CanCastling(farRook))
+            {
+                Position pos1 = new Position(Position.Line, Position.Column - 1);
+                Position pos2 = new Position(Position.Line, Position.Column - 2);
+                Position pos3 = new Position(Position.Line, Position.Column - 3);
+                if (Board.Piece(pos1) == null && Board.Piece(pos2) == null && Board.Piece(pos3) == null)
+                {
+                    placeble[Position.Line, Position.Column - 2] = true;
+                }
+            } 
         }
         return placeble;
     }

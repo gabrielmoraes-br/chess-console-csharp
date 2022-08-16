@@ -17,7 +17,7 @@ public abstract class Piece
         Moves = 0;
     }
     
-    //Increase moves from a piece.
+    //Increase moves from a piece. Useful for Pawn first move and Castling mechanics.
     public void IncreaseMoves()
     {
         Moves++;
