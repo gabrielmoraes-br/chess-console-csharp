@@ -59,7 +59,7 @@ public class ChessMatch
             farRook.IncreaseMoves();
             Board.PutPiece(farRook, rookDestination);
         }
-        //En Passant special move
+        //En Passant, Pawn special move.
         if (piece is Pawn)
         {
             if (origin.Column != destination.Column && capturedPiece == null)
@@ -92,8 +92,21 @@ public class ChessMatch
             throw new BoardException("You cannot check yourself!");
         }
         
+        //Promotion to Queen, Pawn special move.
         Piece piece = Board.Piece(destination);
-        
+        if (piece is Pawn)
+        {
+            if ((piece.Color == Color.White && destination.Line == 0) ||
+                (piece.Color == Color.Black && destination.Line == 7))
+            {
+                piece = Board.PullPiece(destination);
+                Pieces.Remove(piece);
+                Piece queen = new Queen(piece.Color, Board);
+                Board.PutPiece(queen, destination);
+                Pieces.Add(queen);
+            }
+        }
+
         //Tests if opponent king is under threat after executing this move.
         if (IsCheck(Opponent(PlayerTurn)))
         {
@@ -103,6 +116,7 @@ public class ChessMatch
         {
             Check = false;
         }
+        
         //Tests if a checkmate was done.
         if (IsCheckmate(Opponent(PlayerTurn)))
         {
@@ -113,7 +127,8 @@ public class ChessMatch
             Turn++;
             PassTurn();
         }
-        //Pawn special move En Passant.
+        
+        //En Passant, Pawn special move.
         if (piece is Pawn && (destination.Line == origin.Line - 2 || destination.Line == origin.Line + 2))
         {
             EnPassantThreat = piece;
@@ -299,7 +314,7 @@ public class ChessMatch
             bool[,] threat = piece.IsPossibleMove();
             for (int i = 0; i < Board.Lines; i++)
             {
-                for (int j = 0; i < Board.Columns; j++)
+                for (int j = 0; j < Board.Columns; j++)
                 {
                     if (threat[i, j])
                     {
