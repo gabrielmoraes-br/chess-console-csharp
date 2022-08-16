@@ -5,8 +5,10 @@ namespace ChessGame.Entities.Rules;
 
 public class Pawn : Piece
 {
-    public Pawn(Color color, Board board) : base(color, board)
+    private ChessMatch Match { get; set; }
+    public Pawn(Color color, Board board, ChessMatch match) : base(color, board)
     {
+        Match = match;
     }
 
     public bool CanCapture(Position position)
@@ -53,6 +55,20 @@ public class Pawn : Piece
             {
                 placeble[position.Line, position.Column] = true;
             }
+            //En Passant special move (white)
+            if (Position.Line == 3)
+            {
+                Position left = new Position(Position.Line, Position.Column - 1);
+                if (Board.IsValidPosition(left) && CanCapture(left) && Board.Piece(left) == Match.EnPassantThreat)
+                {
+                    placeble[left.Line - 1, left.Column] = true;
+                }
+                Position right = new Position(Position.Line, Position.Column + 1);
+                if (Board.IsValidPosition(right) && CanCapture(right) && Board.Piece(right) == Match.EnPassantThreat)
+                {
+                    placeble[right.Line - 1, right.Column] = true;
+                }
+            }
         }
         else
         {
@@ -78,6 +94,20 @@ public class Pawn : Piece
             if (Board.IsValidPosition(position) && CanCapture(position))
             {
                 placeble[position.Line, position.Column] = true;
+            }
+            //En Passant special move (black)
+            if (Position.Line == 4)
+            {
+                Position left = new Position(Position.Line, Position.Column - 1);
+                if (Board.IsValidPosition(left) && CanCapture(left) && Board.Piece(left) == Match.EnPassantThreat)
+                {
+                    placeble[left.Line + 1, left.Column] = true;
+                }
+                Position right = new Position(Position.Line, Position.Column + 1);
+                if (Board.IsValidPosition(right) && CanCapture(right) && Board.Piece(right) == Match.EnPassantThreat)
+                {
+                    placeble[right.Line + 1, right.Column] = true;
+                }
             }
         }
         return placeble;
