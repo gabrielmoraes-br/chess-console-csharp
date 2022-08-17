@@ -24,6 +24,7 @@ public class Screen
         }
         else
         {
+            //The program ends after match.Finished has true value (IsCheckmate test).
             Console.WriteLine("CHECKMATE!");
             Console.WriteLine($"Winner: {match.PlayerTurn}");
         }

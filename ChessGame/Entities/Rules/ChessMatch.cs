@@ -29,7 +29,9 @@ public class ChessMatch
         PlacePieces();
     }
 
-    //Grabs the pulled piece from the board (returned pulledPiece from PullPiece) and place it in another position.
+    ///Move piece from an origin to a destination position.
+    //It grabs the pulled piece from the board (returned pulledPiece from PullPiece)
+    //and place it in another position (using the PutPiece method).
     public Piece Move(Position origin, Position destination)
     {
         Piece piece = Board.PullPiece(origin);
@@ -116,7 +118,6 @@ public class ChessMatch
         {
             Check = false;
         }
-        
         //Tests if a checkmate was done.
         if (IsCheckmate(Opponent(PlayerTurn)))
         {
@@ -127,7 +128,6 @@ public class ChessMatch
             Turn++;
             PassTurn();
         }
-        
         //En Passant, Pawn special move.
         if (piece is Pawn && (destination.Line == origin.Line - 2 || destination.Line == origin.Line + 2))
         {
